@@ -69,7 +69,7 @@ def find_solution(rectangles):
     return find_solution_ffdh(rectangles)
 
 def find_solution_ffdh(rectangles):
-    placement = []
+    placement = [None] * len(rectangles)
     max_width = 50000 #arbitrary
 
     cur_x = 0
@@ -79,10 +79,7 @@ def find_solution_ffdh(rectangles):
 
     rects = index_and_sort_rect_list(rectangles)
 
-    for x in rects:
-        print(str(x[0]) + ", " + str(x[1]) + ", " + str(x[2]))
-
-    left_rect_y = rects[0][1]
+    max_y = rects[0][1]
 
     for rect in rects:
         width = rect[0]
@@ -90,14 +87,17 @@ def find_solution_ffdh(rectangles):
         index = rect[2]
 
         if calc_y is True:
-            cur_y = left_rect_y
-            left_rect_y = cur_y + height
+            cur_y = cur_y + max_y
+            max_y = 0
             calc_y = False
 
+        if height > max_y:
+            max_y = height
+
+        coordinate = (cur_x, cur_y)
+        placement[index] = coordinate
 
         cur_x = cur_x + width
-        coordinate = (cur_x, cur_y)
-        placement.insert(index, coordinate)
 
         if cur_x > max_width:
             cur_x = 0
