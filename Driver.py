@@ -14,14 +14,15 @@ def main():
     module2_name_default = "naive_solution"
     default_set_count = 10
 
-    can_visualize = True
-    module1_name_default = "bin_packing"
-    module2_name_default = "naive_solution"
-    default_set_count = 1
 
     dbg = True
+    if dbg is True:
+        can_visualize = True
+        default_set_count = 1
 
-    if(dbg):
+
+
+    if dbg is True:
         lib1 = load_module(module1_name_default)
         lib2 = load_module(module2_name_default)
         lib1_result, lib2_result = compare_solutions(lib1, lib2, default_set_count, visual=can_visualize)
@@ -30,50 +31,48 @@ def main():
         print('Average ratio:',lib1_result['area']/lib2_result['area'])
 
 
+    if dbg is False:
+        while (True):
+            name = input("Module 1 name (default: "+module1_name_default+"): ")
 
-    # while (True):
-    while (False):
+            if (len(name)==0):
+                name = module1_name_default
 
-        name = input("Module 1 name (default: "+module1_name_default+"): ")
+            if (name == '$quit'):
+                return
 
-        if (len(name)==0):
-            name = module1_name_default
+            lib1 = load_module(name)
+            name = input("Module 2 name (default: "+module2_name_default+"): ")
 
-        if (name == '$quit'):
-            return
-
-        lib1 = load_module(name)
-        name = input("Module 2 name (default: "+module2_name_default+"): ")
-
-        if (len(name)==0):
-            name = module2_name_default
+            if (len(name)==0):
+                name = module2_name_default
 
 
-        lib2 = load_module(name)
-        num_sets = input("Number sets(default: "+str(default_set_count)+"): ")
+            lib2 = load_module(name)
+            num_sets = input("Number sets(default: "+str(default_set_count)+"): ")
 
-        if (len(num_sets)==0):
-            num_sets=default_set_count
-        else:
-            num_sets = int(num_sets)
-        visual=False
-        if (can_visualize):
-            while (True):
-                visual = input("Visualize? y/n: ")
-                if (visual == 'y'):
-                    visual = True
-                    break
-                elif (visual=='n'):
-                    visual = False
-                    break
-                else:
-                    print("That was not y or n, try again.")
+            if (len(num_sets)==0):
+                num_sets=default_set_count
+            else:
+                num_sets = int(num_sets)
+            visual=False
+            if (can_visualize):
+                while (True):
+                    visual = input("Visualize? y/n: ")
+                    if (visual == 'y'):
+                        visual = True
+                        break
+                    elif (visual=='n'):
+                        visual = False
+                        break
+                    else:
+                        print("That was not y or n, try again.")
 
 
-        lib1_result, lib2_result = compare_solutions(lib1, lib2, num_sets, visual=visual)
-        print("Module 1:",lib1_result)
-        print("Module 2:",lib2_result)
-        print('Average ratio:',lib1_result['area']/lib2_result['area'])
+            lib1_result, lib2_result = compare_solutions(lib1, lib2, num_sets, visual=visual)
+            print("Module 1:",lib1_result)
+            print("Module 2:",lib2_result)
+            print('Average ratio:',lib1_result['area']/lib2_result['area'])
 
 def load_module(sol_name):
     lib = importlib.import_module(sol_name)
