@@ -25,7 +25,8 @@ RETURNS: a list of tuples that designate the top left corner placement,
          y1 = top left y coordinate of rectangle 1 placement, etc.
 """
 
-def find_naive_solution (rectangles):
+
+def find_naive_solution(rectangles):
     placement = []
     upper_left_x = 0
     upper_left_y = 0
@@ -33,12 +34,13 @@ def find_naive_solution (rectangles):
     for rectangle in rectangles:
         # print(str(rectangle[1]) + " * " + str(rectangle[0]))
         width = rectangle[0]
-        coordinate = (upper_left_x, upper_left_y)   # make a tuple
-        placement.insert(0, coordinate)             # insert tuple at front of list
+        coordinate = (upper_left_x, upper_left_y)  # make a tuple
+        placement.insert(0, coordinate)  # insert tuple at front of list
         upper_left_x = upper_left_x + width
 
-    placement.reverse()                             # original order
+    placement.reverse()  # original order
     return placement
+
 
 # -----------------------------------------------
 
@@ -57,28 +59,37 @@ RETURNS: a list of tuples that designate the top left corner placement,
          y1 = top left y coordinate of rectangle 1 placement, etc.
 """
 
+
 def find_solution(rectangles):
     max = find_max_width_height(rectangles)
-    print ("Number of rectangles: " + str(len(rectangles)))
+    print("Number of rectangles: " + str(len(rectangles)))
     print(str(max[0]) + " * " + str(max[1]))
 
-    mid = math.floor(len(rectangles)/2)
-    print ("Midpoint: " + str(rectangles[mid][0]) + " * " + str(rectangles[mid][1]))
+    mid = math.floor(len(rectangles) / 2)
+    print("Midpoint: " + str(rectangles[mid][0]) + " * " + str(rectangles[mid][1]))
 
     # return find_naive_solution(rectangles)  # a working example!
     return find_solution_ffdh(rectangles)
 
+
 def find_solution_ffdh(rectangles):
     placement = [None] * len(rectangles)
-    max_width = 50000 #arbitrary
 
     cur_x = 0
     cur_y = 0
     calc_y = False
 
+    rectInfo = index_and_sort_rect_list(rectangles)
+    rects = rectInfo[0]
+    width_sum = rectInfo[1]
+    height_sum = rectInfo[2]
 
-    rects = index_and_sort_rect_list(rectangles)
-
+    # TODO need to find a better metric for finding the row size.  20 is simply the number of rows.
+    row_size = width_sum / 20
+    print("width_sum:", width_sum)
+    print("height_sum:", height_sum)
+    print("row_size:", row_size)
+    print("num_rows:", int(width_sum)/row_size)
     max_y = rects[0][1]
 
     for rect in rects:
@@ -99,25 +110,35 @@ def find_solution_ffdh(rectangles):
 
         cur_x = cur_x + width
 
-        if cur_x > max_width:
+        if cur_x > row_size:
             cur_x = 0
             calc_y = True
 
     return placement
 
+
+# TODO find standard deviation between rectangle sizes?  Also returning a bunch of things from a function is bad
+# TODO    practice, but it is fast.
 def index_and_sort_rect_list(rectangles):
     rects = []
+    width_sum = 0
+    height_sum = 0
     for index, rect in enumerate(rectangles):
+        width_sum += rect[0]
+        height_sum += rect[1]
         cur = (rect[0], rect[1], index)
         rects.insert(0, cur)
-    rects.sort(key = lambda x : x[0], reverse=True)
+    rects.sort(key=lambda x: x[1], reverse=True)
 
-    return rects
+    return rects, width_sum, height_sum
+
 
 def find_max_width_height(rectangles):
-    max = [0,0] # max = [width, height]
+    max = [0, 0]  # max = [width, height]
     for rectangle in rectangles:
         # print(str(rectangle[1]) + " * " + str(rectangle[0]))
-        if max[0] < rectangle[0]: max[0] = rectangle[0]  # width
-        if max[1] < rectangle[1]: max[1] = rectangle[1]  # height
+        if max[0] < rectangle[0]:
+            max[0] = rectangle[0]  # width
+        if max[1] < rectangle[1]:
+            max[1] = rectangle[1]  # height
     return max
