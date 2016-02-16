@@ -1,4 +1,6 @@
 import math
+import statistics
+import pprint
 
 # ----------------------------------------------
 # CSCI 338, Spring 2016, Bin Packing Assignment
@@ -61,9 +63,9 @@ RETURNS: a list of tuples that designate the top left corner placement,
 
 
 def find_solution(rectangles):
-    max = find_max_width_height(rectangles)
+    # pp = pprint.PrettyPrinter(indent=4)
+    # pp.pprint(rectangles)
     print("Number of rectangles: " + str(len(rectangles)))
-    print(str(max[0]) + " * " + str(max[1]))
 
     mid = math.floor(len(rectangles) / 2)
     print("Midpoint: " + str(rectangles[mid][0]) + " * " + str(rectangles[mid][1]))
@@ -73,29 +75,34 @@ def find_solution(rectangles):
 
 
 def find_solution_ffdh(rectangles):
-    placement = [None] * len(rectangles)
+    num_rects = len(rectangles)
+    placement = [None] * num_rects
+
+    all_widths = [rect[0] for rect in rectangles]
+    all_heights = [rect[1] for rect in rectangles]
+    all_areas = [rect[0] * rect[1] for rect in rectangles]
+    area_sum = sum(all_areas)
 
     cur_x = 0
     cur_y = 0
     calc_y = False
 
-    rectInfo = index_and_sort_rect_list(rectangles)
-    rects = rectInfo[0]
-    width_sum = rectInfo[1]
-    height_sum = rectInfo[2]
+    rects, width_sum, height_sum = index_and_sort_rect_list(rectangles)
 
-    # TODO need to find a better metric for finding the row size.  20 is simply the number of rows.
-    row_size = width_sum / 20
-    print("width_sum:", width_sum)
-    print("height_sum:", height_sum)
-    print("row_size:", row_size)
-    print("num_rows:", int(width_sum)/row_size)
-    max_y = rects[0][1]
+    w_stdev, w_var, w_mean, w_median, w_avg, w_max, w_min = getStats(all_widths, num_rects, width_sum, "width")
+    h_stdev, h_var, h_mean, h_median, h_avg, h_max, h_min = getStats(all_heights, num_rects, height_sum, "height")
+    a_stdev, a_var, a_mean, a_median, a_avg, a_max, a_min = getStats(all_areas, num_rects, area_sum, "area")
+    print("w_stdev/h_stdev:", round(statistics.stdev(all_widths) / statistics.stdev(all_heights)), 2)
 
+    # this only works if it is not uniformly distributed...
+    # don't ask me why this works for a large number of rectangles
+    row_size = math.sqrt(width_sum) * 25
+    print("row_size:", round(row_size, 2))
+    print("num_rows:", round(int(width_sum) / row_size), 2)
+
+    max_y = h_max
     for rect in rects:
-        width = rect[0]
-        height = rect[1]
-        index = rect[2]
+        width, height, index = rect
 
         if calc_y is True:
             cur_y = cur_y + max_y
@@ -117,8 +124,6 @@ def find_solution_ffdh(rectangles):
     return placement
 
 
-# TODO find standard deviation between rectangle sizes?  Also returning a bunch of things from a function is bad
-# TODO    practice, but it is fast.
 def index_and_sort_rect_list(rectangles):
     rects = []
     width_sum = 0
@@ -133,12 +138,43 @@ def index_and_sort_rect_list(rectangles):
     return rects, width_sum, height_sum
 
 
-def find_max_width_height(rectangles):
-    max = [0, 0]  # max = [width, height]
+def find_max_width_height_area(rectangles):
+    max_x, max_y, max_a = 0, 0, 0
     for rectangle in rectangles:
-        # print(str(rectangle[1]) + " * " + str(rectangle[0]))
-        if max[0] < rectangle[0]:
-            max[0] = rectangle[0]  # width
-        if max[1] < rectangle[1]:
-            max[1] = rectangle[1]  # height
-    return max
+        w, h = rectangle
+        a = w * h
+        if max_x < w:
+            max_x = w  # width
+
+        if max_y < h:
+            max_y = h  # height
+
+        if max_a < a:
+            max_a = a
+
+
+    return max_x, max_y, max_a
+
+
+def getStats(rects, num_rects, sum, name):
+    print(name + " statistics: ")
+    var = statistics.variance(rects)
+    stdev = math.sqrt(var)
+    mu = statistics.mean(rects)
+    coefVar = stdev / mu
+    median = statistics.median(rects)
+    statistics.StatisticsError()
+    avg = sum / num_rects
+    max_ = max(rects)
+    min_ = min(rects)
+    print("    stdev    :", round(stdev, 2))
+    print("    mean     :", round(mu, 2))
+    print("    coef var :", round(coefVar, 2))
+    print("    var      :", round(var, 2))
+    print("    median   :", round(median, 2))
+    print("    sum      :", round(sum, 2))
+    print("    num rects:", round(num_rects, 2))
+    print("    avg      :", round(avg, 2))
+    print("    max      :", round(max_, 2))
+    print("    min      :", round(min_, 2))
+    return stdev, var, mu, median, avg, max_, min_
