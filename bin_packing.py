@@ -89,16 +89,16 @@ def find_solution_ffdh(rectangles):
 
     rects, width_sum, height_sum = index_and_sort_rect_list(rectangles)
 
-    w_stdev, w_var, w_mean, w_median, w_avg, w_max, w_min = getStats(all_widths, num_rects, width_sum, "width")
-    h_stdev, h_var, h_mean, h_median, h_avg, h_max, h_min = getStats(all_heights, num_rects, height_sum, "height")
-    a_stdev, a_var, a_mean, a_median, a_avg, a_max, a_min = getStats(all_areas, num_rects, area_sum, "area")
+    w_stdev, w_var, w_mean, w_coefVar, w_median, w_avg, w_max, w_min = getStats(all_widths, num_rects, width_sum, "width")
+    h_stdev, h_var, h_mean, h_coefVar, h_median, h_avg, h_max, h_min = getStats(all_heights, num_rects, height_sum, "height")
+    a_stdev, a_var, a_mean, a_coefVar, a_median, a_avg, a_max, a_min = getStats(all_areas, num_rects, area_sum, "area")
     print("w_stdev/h_stdev:", round(statistics.stdev(all_widths) / statistics.stdev(all_heights)), 2)
 
     # this only works if it is not uniformly distributed...
     # don't ask me why this works for a large number of rectangles
     row_size = math.sqrt(width_sum) * 25
     print("row_size:", round(row_size, 2))
-    print("num_rows:", round(int(width_sum) / row_size), 2)
+    print("num_rows:", round((int(width_sum) / row_size), 2))
 
     max_y = h_max
     for rect in rects:
@@ -177,4 +177,4 @@ def getStats(rects, num_rects, sum, name):
     print("    avg      :", round(avg, 2))
     print("    max      :", round(max_, 2))
     print("    min      :", round(min_, 2))
-    return stdev, var, mu, median, avg, max_, min_
+    return stdev, var, mu, coefVar, median, avg, max_, min_
