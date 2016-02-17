@@ -72,6 +72,7 @@ def find_solution(rectangles):
 
     # return find_naive_solution(rectangles)  # a working example!
     return find_solution_ffdh(rectangles)
+    # return find_solution_split(rectangles)
 
 
 def find_solution_ffdh(rectangles):
@@ -87,7 +88,7 @@ def find_solution_ffdh(rectangles):
     cur_y = 0
     calc_y = False
 
-    rects, width_sum, height_sum = index_and_sort_rect_list(rectangles)
+    rects, width_sum, height_sum = index_and_sort_rect_list(rectangles, 1)
 
     w_stdev, w_var, w_mean, w_coefVar, w_median, w_avg, w_max, w_min = getStats(all_widths, num_rects, width_sum, "width")
     h_stdev, h_var, h_mean, h_coefVar, h_median, h_avg, h_max, h_min = getStats(all_heights, num_rects, height_sum, "height")
@@ -124,7 +125,110 @@ def find_solution_ffdh(rectangles):
     return placement
 
 
-def index_and_sort_rect_list(rectangles):
+def find_solution_split(rectangles):
+    num_rects = len(rectangles)
+    placement = [None] * num_rects
+
+    all_widths = [rect[0] for rect in rectangles]
+    w_greater_one = sorted([rect[0] for rect in rectangles if rect[0] > 1])
+    print("num rects where w > 1:")
+    print(w_greater_one)
+    all_heights = [rect[1] for rect in rectangles]
+    all_areas = [rect[0] * rect[1] for rect in rectangles]
+    area_sum = sum(all_areas)
+
+    rects_on_width, width_sum, height_sum = index_and_sort_rect_list(rectangles, 0)
+
+    cur_x = 0
+    cur_y = 0
+    calc_y = False
+
+    w_stdev, w_var, w_mean, w_coefVar, w_median, w_avg, w_max, w_min = getStats(all_widths, num_rects, width_sum, "width")
+    h_stdev, h_var, h_mean, h_coefVar, h_median, h_avg, h_max, h_min = getStats(all_heights, num_rects, height_sum, "height")
+    a_stdev, a_var, a_mean, a_coefVar, a_median, a_avg, a_max, a_min = getStats(all_areas, num_rects, area_sum, "area")
+
+
+    split_index = -1
+    print("num_rects:", num_rects)
+    for index, rect in enumerate(rects_on_width):
+        if rect[0] >= 10:
+            print("found split index where: ")
+            print("index =", index)
+            print("rect[0] =", rect[0])
+            split_index = index
+            break
+    print("w_max: ", w_max)
+    len_ = len(rects_on_width)
+    l1 = rects_on_width[0:split_index]
+    l2 = rects_on_width[split_index:len_]
+
+    l1.sort(key = lambda x : x[1], reverse = True)
+    l2.sort(key = lambda x : x[1], reverse = True)
+
+    print("l1 length: ", len(l1))
+    print("l2 length: ", len(l2))
+
+    print(l2)
+
+
+    print("w_stdev/h_stdev:", round(statistics.stdev(all_widths) / statistics.stdev(all_heights)), 2)
+
+    # this only works if it is not uniformly distributed...
+    # don't ask me why this works for a large number of rectangles
+    # row_size = math.sqrt(width_sum) * 25
+    row_size = 1000
+    print("row_size:", round(row_size, 2))
+    print("num_rows:", round((int(width_sum) / row_size), 2))
+
+
+    max_y = h_max
+    for rect in l2:
+        width, height, index = rect
+
+        if calc_y is True:
+            cur_y = cur_y + max_y
+            max_y = 0
+            calc_y = False
+
+        if height > max_y:
+            max_y = height
+
+        coordinate = (cur_x, cur_y)
+        placement[index] = coordinate
+
+        cur_x = cur_x + width
+
+        if cur_x > row_size:
+            cur_x = 0
+            calc_y = True
+
+    # max_y = h_max
+    row_size = 1000
+    for rect in l1:
+        width, height, index = rect
+
+        if calc_y is True:
+            cur_y = cur_y + max_y
+            max_y = 0
+            calc_y = False
+
+        if height > max_y:
+            max_y = height
+
+        coordinate = (cur_x, cur_y)
+        placement[index] = coordinate
+
+        cur_x = cur_x + width
+
+        if cur_x > row_size:
+            cur_x = 0
+            calc_y = True
+
+
+    return placement
+
+
+def index_and_sort_rect_list(rectangles, sort_key):
     rects = []
     width_sum = 0
     height_sum = 0
@@ -133,7 +237,7 @@ def index_and_sort_rect_list(rectangles):
         height_sum += rect[1]
         cur = (rect[0], rect[1], index)
         rects.insert(0, cur)
-    rects.sort(key=lambda x: x[1], reverse=True)
+    rects.sort(key=lambda x: x[sort_key], reverse=True)
 
     return rects, width_sum, height_sum
 

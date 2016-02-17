@@ -15,7 +15,7 @@ def main():
     default_set_count = 10
 
 
-    dbg = True
+    dbg = False
     if dbg is True:
         can_visualize = True
         default_set_count = 1
@@ -164,7 +164,12 @@ def get_dataset(num):
      #widths in the range [1,1000]
      #heights in the range [1,1000]
     numRectangles = random.randint(1000,10000)
-    sizes = rect_gen.randomSplit(numRectangles,1000,1000)
+
+    randomSplit = False
+    if randomSplit is True:
+        sizes = rect_gen.randomSplit(numRectangles,1000,1000)
+    else:
+        sizes = rect_gen.perfectSplit(1000,1000,500,500)
     maxTime = 60
     return (sizes,maxTime)
 
