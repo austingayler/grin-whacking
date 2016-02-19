@@ -70,7 +70,7 @@ def get_std_ffdh(rectangles, placement, w_sum, sort_key, row_size_multiplier):
     for rect in rects:
         width, height, index = rect
         if calc_y is True:
-            cur_y = cur_y + max_h
+            cur_y = cur_y - max_h
             max_h = 0
             calc_y = False
         if height > max_h:
@@ -97,5 +97,4 @@ def getStats(rects):
     stdev = math.sqrt(var)
     mu = statistics.mean(rects)
     coefVar = stdev / mu
-    print(coefVar)
     return stdev, coefVar
